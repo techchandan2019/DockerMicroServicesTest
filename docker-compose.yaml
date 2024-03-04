@@ -1,0 +1,63 @@
+version: '3'
+services:
+  Msproj-ApiGateway:
+    image: ms/api-gateway
+    build:
+      context: ./Msproj-ApiGateway
+      dockerfile: Dockerfile
+    ports:
+      - "4345:4345"
+    networks:
+      - app-network
+ 
+
+  Msproj-EurekaServer:
+    image: ms/eureka-server
+    build:
+      context: ./Msproj-EurekaServer
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+
+  Msproj-ConfigServer:
+    image: ms/config-server
+    build:
+      context: ./Msproj-ConfigServer
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    networks:
+      - app-network
+
+  zipkin-server:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - app-network
+
+  Msproj-ConsumerService:
+    image: ms/msproj-consumer
+    build:
+      context: ./Msproj-ConsumerService
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - Msproj-EurekaServer
+    
+  Msproj-ProductService:
+    image: ms/msproj-product
+    build:
+      context: ./Msproj-ProductService
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - Msproj-EurekaServer
+
+networks:
+  app-network:
+    driver: bridge
